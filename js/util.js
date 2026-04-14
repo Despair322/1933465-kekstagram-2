@@ -9,5 +9,6 @@ const createCounter = () => {
     next
   };
 };
+const isEscapeKey = (evt) => evt.key === 'Escape';
 
-export {getRandomNumber, getRandomValue, createCounter};
+export {getRandomNumber, getRandomValue, createCounter, isEscapeKey};
