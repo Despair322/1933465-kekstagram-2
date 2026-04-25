@@ -1,6 +1,6 @@
 class Gallery {
-  constructor(cb) {
-    this.items = cb();
+  constructor(data) {
+    this.items = data;
   }
 
   getPictures() {

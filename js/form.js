@@ -1,19 +1,28 @@
 import { isEscapeKey } from './util.js';
 import { pristine } from './validator.js';
+import { sendData } from './api.js';
 import './image-editor.js';
+import { createNotification } from './notification.js';
+import { editorReset } from './image-editor.js';
 
-const body = document.querySelector('body');
+const SendButtonText = {
+  DEFAULT: 'Опубликовать',
+  SENDING: 'Публикация...',
+};
+
+const body = document.body;
 const imgUploadOverlay = document.querySelector('.img-upload__overlay');
 const form = document.querySelector('.img-upload__form');
-const image = form.querySelector('.img-upload__preview').querySelector('img');
+const sendButton = form.querySelector('.img-upload__submit');
 const sliderContainer = form.querySelector('.effect-level');
-
+const successTemplate = document.querySelector('#success');
+const errorTemplate = document.querySelector('#error');
 
 const closeForm = () => {
   imgUploadOverlay.classList.add('hidden');
   body.classList.remove('modal-open');
   form.reset();
-  image.style = '';
+  editorReset();
   pristine.reset();
   document.removeEventListener('keydown', documentKeydownHandler);
 };
@@ -33,20 +42,49 @@ const closeButtonClickHandler = (evt) => {
   closeForm();
 };
 
-const imgUploadHandler = () => {
+const imgUploadChangeHandler = () => {
   imgUploadOverlay.classList.remove('hidden');
   body.classList.add('modal-open');
   document.addEventListener('keydown', documentKeydownHandler);
   sliderContainer.classList.add('hidden');
 };
 
-form.querySelector('.img-upload__input').addEventListener('change', imgUploadHandler);
+const onSuccess = () => {
+  createNotification(successTemplate, closeForm);
+};
+const onError = () => {
+  createNotification(errorTemplate);
+};
 
-form.addEventListener('submit', (evt) => {
-  evt.preventDefault();
+const toggleButtonState = (state) => {
+  sendButton.disabled = state;
+  sendButton.textContent = state ? SendButtonText.SENDING : SendButtonText.DEFAULT;
+};
+
+const sendFormData = async (formElement) => {
   if (pristine.validate()) {
-    form.submit();
+    const formData = new FormData(formElement);
+    toggleButtonState(true);
+    try {
+      await sendData(formData);
+      onSuccess();
+    } catch (error) {
+      onError();
+    } finally {
+      toggleButtonState(false);
+    }
   }
-});
+};
+
+const formSubmitHandler = (evt) => {
+  evt.preventDefault();
+  sendFormData(evt.target);
+};
+
+form.querySelector('.img-upload__input').addEventListener('change', imgUploadChangeHandler);
+
+form.addEventListener('submit', formSubmitHandler);
 
 form.querySelector('.img-upload__cancel').addEventListener('click', closeButtonClickHandler);
+
+
