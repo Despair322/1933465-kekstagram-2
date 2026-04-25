@@ -39,16 +39,24 @@ class ErrorMessage {
     this.error = value;
   }
 }
-const hashError = new ErrorMessage();
-const descriptionError = new ErrorMessage();
 
 const form = document.querySelector('.img-upload__form');
+
+const hashError = new ErrorMessage();
+const descriptionError = new ErrorMessage();
 const pristine = new Pristine(form, {
   classTo: 'img-upload__field-wrapper',
   errorTextClass: '.img-upload__field-wrapper--error',
   errorTextParent: 'img-upload__field-wrapper',
 });
 
+const runValidators = (validators, value, setErrorMessage) =>
+  !validators.some((validation) => {
+    if (validation.callback(value)) {
+      setErrorMessage(validation.errorMessage);
+      return true;
+    }
+  });
 const validateDescription = (value) => {
   if (value.length > MAX_DESCRIPTION_LENGTH) {
     descriptionError.set(`Описание должно быть меньше ${MAX_DESCRIPTION_LENGTH} символов`);
@@ -62,16 +70,7 @@ const validateHashes = (value) => {
     return true;
   }
   const hashes = value.trim().split(/\s+/).map((hash) => hash.toLowerCase());
-
-  if (VALIDATIONS.some((validation) => {
-    if (validation.callback(hashes)) {
-      hashError.set(validation.errorMessage);
-      return true;
-    }
-  })) {
-    return false;
-  }
-  return true;
+  return runValidators(VALIDATIONS, hashes, hashError.set.bind(hashError));
 };
 
 pristine.addValidator(
