@@ -9,6 +9,7 @@ const SendButtonText = {
   DEFAULT: 'Опубликовать',
   SENDING: 'Публикация...',
 };
+const FILE_TYPES = ['image/jpeg', 'image/png', 'image/gif'];
 
 const body = document.body;
 const imgUploadOverlay = document.querySelector('.img-upload__overlay');
@@ -17,6 +18,7 @@ const sendButton = form.querySelector('.img-upload__submit');
 const sliderContainer = form.querySelector('.effect-level');
 const successTemplate = document.querySelector('#success');
 const errorTemplate = document.querySelector('#error');
+const preview = form.querySelector('.img-upload__preview').querySelector('img');
 
 const closeForm = () => {
   imgUploadOverlay.classList.add('hidden');
@@ -42,7 +44,15 @@ const closeButtonClickHandler = (evt) => {
   closeForm();
 };
 
-const imgUploadChangeHandler = () => {
+const updatePreview = (target) => {
+  const file = target.files[0];
+  if (FILE_TYPES.includes(file.type)) {
+    preview.src = URL.createObjectURL(file);
+  }
+};
+
+const imgUploadChangeHandler = (evt) => {
+  updatePreview(evt.target);
   imgUploadOverlay.classList.remove('hidden');
   body.classList.add('modal-open');
   document.addEventListener('keydown', documentKeydownHandler);

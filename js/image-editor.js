@@ -56,6 +56,7 @@ sliderContainer.classList.add('hidden');
 const editorReset = () => {
   currentScale = 100;
   imgPreview.style = '';
+  imgPreview.src = '';
 };
 
 const updateScale = (modifier) => {
