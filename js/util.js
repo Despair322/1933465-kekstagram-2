@@ -9,4 +9,16 @@ const showErrorMessage = () => {
   setTimeout(() => errorElement.remove(), REMOVE_MESSAGE_TIMEOUT);
 };
 
-export { isEscapeKey, showErrorMessage };
+function debounce (callback, timeoutDelay = 500) {
+  let timeoutId;
+
+  return (...rest) => {
+    console.log(timeoutId);
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => callback.apply(this, rest), timeoutDelay);
+    console.log(timeoutId);
+
+  };
+}
+
+export { isEscapeKey, showErrorMessage, debounce };

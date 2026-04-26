@@ -1,7 +1,7 @@
 
 const pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
 const pictureContainer = document.querySelector('.pictures');
-
+let picturesFragment;
 const createPictureElement = (photo) => {
   const pictureElement = pictureTemplate.cloneNode(true);
   const img = pictureElement.querySelector('.picture__img');
@@ -22,9 +22,20 @@ const createPictures = (photos) => {
   return fragment;
 };
 
-const renderPictures = (gallery) => {
-  const fragment = createPictures(gallery.getPictures());
-  pictureContainer.appendChild(fragment);
+const clearPictures = () => {
+  pictureContainer.querySelectorAll('.picture').forEach((picture) => {
+    picture.remove();
+  });
+};
+
+const renderPictures = (gallery, filter = null) => {
+  clearPictures();
+  let pictures = gallery.getPictures();
+  if (filter) {
+    pictures = filter(pictures);
+  }
+  picturesFragment = createPictures(pictures);
+  pictureContainer.appendChild(picturesFragment);
 };
 
 export { renderPictures };
