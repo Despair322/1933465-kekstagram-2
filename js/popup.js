@@ -13,25 +13,30 @@ class Popup {
     this.caption = this.popup.querySelector('.social__caption');
     this.commentsContainer = this.popup.querySelector('.social__comments');
     this.commentsLoader = this.popup.querySelector('.social__comments-loader');
+    this.commentTemplate = this.popup.querySelector('.social__comment');
     this.closeButton = this.popup.querySelector('.big-picture__cancel');
     this.commentsCount = 0;
+    this.comments = [];
     this.photo = {};
     this.attachHandlers();
   }
 
-  comments = [];
-
-  createComment = (comment) => `<li class="social__comment"><img class="social__picture" alt="${comment.name}" src="${comment.avatar}"><p class="social__text">${comment.message}</p></li>`;
+  createComment = (comment) => {
+    const commentTemplate = this.commentTemplate.cloneNode(true);
+    const socialPicture = commentTemplate.querySelector('.social__picture');
+    socialPicture.src = comment.avatar;
+    socialPicture.alt = comment.name;
+    commentTemplate.querySelector('.social__text').textContent = comment.message;
+    return commentTemplate;
+  };
 
   addComments = () => {
-    this.commentsContainer.insertAdjacentHTML(
-      'beforeend',
-      this.comments.slice(this.commentsCount, this.commentsCount + 5)
-        .reduce((acc, comment) => {
-          acc += this.createComment(comment);
-          return acc;
-        }, '')
-    );
+    const fragment = document.createDocumentFragment();
+    this.comments.slice(this.commentsCount, this.commentsCount + 5)
+      .forEach((comment) => {
+        fragment.appendChild(this.createComment(comment));
+      });
+    this.commentsContainer.appendChild(fragment);
     this.commentsCount += 5;
     if (this.commentsCount >= this.comments.length) {
       this.commentsLoader.classList.add('hidden');

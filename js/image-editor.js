@@ -45,9 +45,9 @@ const scaleValue = form.querySelector('.scale__control--value');
 const imgPreview = form.querySelector('.img-upload__preview').querySelector('img');
 
 const sliderContainer = form.querySelector('.effect-level');
-const sliderElement = sliderContainer.querySelector('.effect-level__slider');
+const slider = sliderContainer.querySelector('.effect-level__slider');
 const sliderValue = sliderContainer.querySelector('.effect-level__value');
-const effectsContainer = form.querySelector('.effects__list');
+const effectsContainer = form.querySelector('.effects');
 let currentScale = 100;
 let currentEffect = 'none';
 let currentStyle = 'none';
@@ -56,6 +56,7 @@ sliderContainer.classList.add('hidden');
 const editorReset = () => {
   currentScale = 100;
   imgPreview.style = '';
+  imgPreview.src = '';
 };
 
 const updateScale = (modifier) => {
@@ -78,22 +79,23 @@ const bigBtnClickHandler = () => {
 smallBtn.addEventListener('click', smallBtnClickHandler);
 bigBtn.addEventListener('click', bigBtnClickHandler);
 
-noUiSlider.create(sliderElement, {
+noUiSlider.create(slider, {
   range: {
     min: 0,
     max: 100,
   },
   start: 100,
   step: 1,
+  connect: 'lower',
   format: {
     to: (value) => Number.isInteger(value) ? value.toFixed(0) : value.toFixed(1),
     from: (value) => parseFloat(value),
   },
 });
 
-sliderElement.noUiSlider.on('update', () => {
+slider.noUiSlider.on('update', () => {
   if (currentEffect !== 'none') {
-    sliderValue.value = sliderElement.noUiSlider.get();
+    sliderValue.value = slider.noUiSlider.get();
     imgPreview.style.filter = `${currentStyle.effect}(${sliderValue.value}${currentStyle.units ?? ''})`;
   }
 });
@@ -106,14 +108,14 @@ effectsContainer.addEventListener('change', (evt) => {
     return;
   }
   currentStyle = SliderInfo[currentEffect];
-  sliderElement.noUiSlider.updateOptions({
+  slider.noUiSlider.updateOptions({
     range: {
       min: currentStyle.min,
       max: currentStyle.max,
     },
     step: currentStyle.step,
   });
-  sliderElement.noUiSlider.set(currentStyle.max);
+  slider.noUiSlider.set(currentStyle.max);
   sliderContainer.classList.remove('hidden');
 });
 

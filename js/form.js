@@ -1,10 +1,10 @@
 import { isEscapeKey } from './util.js';
 import { pristine } from './validator.js';
 import { sendData } from './api.js';
-import './image-editor.js';
 import { createNotification } from './notification.js';
 import { editorReset } from './image-editor.js';
 
+const FILE_TYPES = ['image/jpeg', 'image/png', 'image/gif'];
 const SendButtonText = {
   DEFAULT: 'Опубликовать',
   SENDING: 'Публикация...',
@@ -17,6 +17,8 @@ const sendButton = form.querySelector('.img-upload__submit');
 const sliderContainer = form.querySelector('.effect-level');
 const successTemplate = document.querySelector('#success');
 const errorTemplate = document.querySelector('#error');
+const uploadPreview = form.querySelector('.img-upload__preview').querySelector('img');
+const uploadPreviewEffects = form.querySelectorAll('.effects__preview');
 
 const closeForm = () => {
   imgUploadOverlay.classList.add('hidden');
@@ -42,7 +44,20 @@ const closeButtonClickHandler = (evt) => {
   closeForm();
 };
 
-const imgUploadChangeHandler = () => {
+const updatePreview = (target) => {
+  const file = target.files[0];
+  if (FILE_TYPES.includes(file.type)) {
+    const url = URL.createObjectURL(file);
+    uploadPreview.src = url;
+
+    uploadPreviewEffects.forEach((effectPreview) => {
+      effectPreview.style.backgroundImage = `url(${url})`;
+    });
+  }
+};
+
+const imgUploadChangeHandler = (evt) => {
+  updatePreview(evt.target);
   imgUploadOverlay.classList.remove('hidden');
   body.classList.add('modal-open');
   document.addEventListener('keydown', documentKeydownHandler);
@@ -61,9 +76,9 @@ const toggleButtonState = (state) => {
   sendButton.textContent = state ? SendButtonText.SENDING : SendButtonText.DEFAULT;
 };
 
-const sendFormData = async (formElement) => {
+const sendFormData = async () => {
   if (pristine.validate()) {
-    const formData = new FormData(formElement);
+    const formData = new FormData(form);
     toggleButtonState(true);
     try {
       await sendData(formData);
@@ -78,7 +93,7 @@ const sendFormData = async (formElement) => {
 
 const formSubmitHandler = (evt) => {
   evt.preventDefault();
-  sendFormData(evt.target);
+  sendFormData();
 };
 
 form.querySelector('.img-upload__input').addEventListener('change', imgUploadChangeHandler);
